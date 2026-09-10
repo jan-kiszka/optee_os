@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: BSD-2-Clause
+name: CI Image
+on: workflow_dispatch
+permissions:
+  contents: read
+  packages: write
+jobs:
+  build-ci-image:
+    name: Build CI Image
+    strategy:
+      matrix:
+        image:
+          - name: ubuntu-latest
+            platform: linux/amd64
+          - name: ubuntu-latest-arm
+            platform: linux/arm64
+    runs-on: ${{ matrix.image.name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e  # v4.3.0
+      - name: Login to ghcr.io
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: ${{ matrix.image.platform }}
+          file: scripts/ci-image/Dockerfile
+          tags: ghcr.io/${{ github.repository }}/ci-image
