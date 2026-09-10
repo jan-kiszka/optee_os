@@ -1,57 +1,12 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 # This Dockerfile creates an image suitable to run OP-TEE OS CI tests
-# in the QEMU environment [1]. It pulls Ubuntu plus all the required
+# in the QEMU environment [1]. It pulls Debian plus all the required
 # packages.
 #
 # [1] https://optee.readthedocs.io/en/latest/building/devices/qemu.html
 
-FROM ubuntu:22.04 as gcc-builder
-MAINTAINER Jerome Forissier <jerome@forissier.org>
-
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update \
- && apt upgrade -y \
- && apt install -y \
-  binutils \
-  build-essential \
-  bison \
-  flex \
-  gawk \
-  git \
-  gcc \
-  help2man \
-  libncurses5-dev \
-  libtool \
-  libtool-bin \
-  python3-dev \
-  texinfo \
-  unzip \
-  wget
-
-RUN useradd -ms /bin/bash nonroot
-USER nonroot
-WORKDIR /home/nonroot
-
-# Build and install cross-compiler with BTI support in ~nonroot/x-tools/aarch64-unknown-linux-gnu/bin
-# This particular commit of crosstool-ng builds GCC 12.2.0 by default which is what we want
-# (13.x does not work with C++ TAs)
-RUN git clone https://github.com/crosstool-ng/crosstool-ng \
- && cd crosstool-ng \
- && git checkout aa6cc4d7 \
- && ./bootstrap \
- && ./configure --enable-local \
- && make -j$(nproc) \
- && ./ct-ng aarch64-unknown-linux-uclibc \
- && echo 'CT_CC_GCC_EXTRA_CONFIG_ARRAY="--enable-standard-branch-protection"' >>.config \
- && echo 'CT_CC_GCC_CORE_EXTRA_CONFIG_ARRAY="--enable-standard-branch-protection"' >>.config \
- && ./ct-ng build.$(nproc)
-
-FROM ubuntu:24.04
-MAINTAINER Jerome Forissier <jerome.forissier@linaro.org>
-
-RUN mkdir -p /usr/local
-COPY --from=gcc-builder /home/nonroot/x-tools/aarch64-unknown-linux-uclibc /usr/local/
+FROM debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update \
@@ -65,6 +20,7 @@ RUN apt update \
   ccache \
   cmake \
   cpio \
+  crossbuild-essential-arm64 \
   curl \
   device-tree-compiler \
   expect \
