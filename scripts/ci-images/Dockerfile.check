@@ -14,7 +14,7 @@ FROM ghcr.io/$CI_IMAGE_OWNER/optee_os/ci-build-image
 ENV DEBIAN_FRONTEND=noninteractive
 RUN sed -i 's/Components: main/Components: main contrib/g' /etc/apt/sources.list.d/debian.sources \
  && apt-get update \
- && apt-get install -y \
+ && apt-get --no-install-recommends install -y \
   android-tools-fastboot \
   qemu-system-arm \
   repo \
