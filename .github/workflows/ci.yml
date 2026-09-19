@@ -9,7 +9,7 @@ concurrency:
 jobs:
   code_style:
     name: Code style
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     container: ghcr.io/${{ vars.CI_IMAGE_OWNER || 'op-tee' }}/optee_os/ci-build-image
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
           pycodestyle scripts/*.py core/arch/arm/plat-stm32mp1/scripts/stm32image.py
   builds:
     name: Build (${{ matrix.name }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     container: ghcr.io/${{ vars.CI_IMAGE_OWNER || 'op-tee' }}/optee_os/ci-build-image
     strategy:
       fail-fast: false
@@ -386,7 +386,7 @@ jobs:
           ccache -s -v
   QEMUv7_checks:
     name: Run (QEMUv7) (${{ matrix.name }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container: ghcr.io/${{ vars.CI_IMAGE_OWNER || 'op-tee' }}/optee_os/ci-check-image
     strategy:
       fail-fast: false
@@ -415,7 +415,7 @@ jobs:
           cache: ${{ matrix.cache || 'shared-read' }}
   QEMUv8_checks:
     name: Run (QEMUv8) (${{ matrix.name }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container: ghcr.io/${{ vars.CI_IMAGE_OWNER || 'op-tee' }}/optee_os/ci-check-image
     strategy:
       fail-fast: false
@@ -489,7 +489,7 @@ jobs:
           cache: ${{ matrix.cache || 'shared-read' }}
   QEMUv8_checks_arm64:
     name: Run (QEMUv8 on arm64) (${{ matrix.name }})
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     container: ghcr.io/${{ vars.CI_IMAGE_OWNER || 'op-tee' }}/optee_os/ci-check-image
     strategy:
       fail-fast: false
